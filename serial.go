@@ -112,3 +112,20 @@ func Read(id int) (string, error) {
 		return "", errors.New("Device id not found")
 	}
 }
+
+func ReadBytes(id int, d []byte) (n int, err error) {
+	iface := findIface(id)
+	if iface != nil {
+		reader := bufio.NewReader(iface)
+		
+		n, err = reader.Read(d)
+			
+			if err != nil {
+				return 0, err
+			}
+		
+		return n, nil
+	} else {
+		return 0, errors.New("Device id not found")
+	}
+}

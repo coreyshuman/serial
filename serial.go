@@ -21,9 +21,9 @@ type SerialInterface struct {
 	s *serial.Port
 }
 
-var idSeed int
+var idSeed int = -1
 
-var ifaceList *list.List
+var ifaceList *list.List = nil
 
 func findIface(id int) *serial.Port {
 	for e := ifaceList.Front(); e != nil; e = e.Next() {
@@ -44,8 +44,12 @@ func removeIface(id int) {
 }
 
 func Init() {
-	idSeed = 1
-	ifaceList = list.New()
+	if idSeed == -1 {
+		idSeed = 1
+	}
+	if ifaceList == nil {
+		ifaceList = list.New()
+	}
 }
 
 func Connect(dev string, baud int, timeout int) (id int, err error) {

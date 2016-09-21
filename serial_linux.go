@@ -183,7 +183,7 @@ func (p *Port) Close() (err error) {
 func (p *Port) RawMode() (error) {
 	fd := p.f.Fd()
 	var oldState State
-	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlReadTermios, uintptr(unsafe.Pointer(&oldState.termios)), 0, 0, 0); err != 0 {
+	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), uintptr(syscall.TCGETS), uintptr(unsafe.Pointer(&oldState.termios)), 0, 0, 0); err != 0 {
 		return nil, err
 	}
 
@@ -195,19 +195,18 @@ func (p *Port) RawMode() (error) {
 	newState.Lflag &^= syscall.ECHO | syscall.ECHONL | syscall.ICANON | syscall.ISIG | syscall.IEXTEN
 	newState.Cflag &^= syscall.CSIZE | syscall.PARENB
 	newState.Cflag |= syscall.CS8
-	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlWriteTermios, uintptr(unsafe.Pointer(&newState)), 0, 0, 0); err != 0 {
-		return nil, err
+	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), uintptr(syscall.TCSETS), uintptr(unsafe.Pointer(&newState)), 0, 0, 0); err != 0 {
+		return err
 	}
 
-	return &oldState, nil
+	return nil
 }
 
 // GetState returns the current state of a terminal which may be useful to
 // restore the terminal after a signal.
-func (p *Port) getState() (*State, error) {
-    fd := p.f.Fd()
+func getState(fd int) (*State, error) {
 	var oldState State
-	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlReadTermios, uintptr(unsafe.Pointer(&oldState.termios)), 0, 0, 0); err != 0 {
+	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), uintptr(syscall.TCGETS), uintptr(unsafe.Pointer(&oldState.termios)), 0, 0, 0); err != 0 {
 		return nil, err
 	}
 
@@ -218,7 +217,7 @@ func (p *Port) getState() (*State, error) {
 // previous state.
 func (p *Port) restore() error {
     fd := p.f.Fd()
-    state := fd.oldState
-	_, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlWriteTermios, uintptr(unsafe.Pointer(&state.termios)), 0, 0, 0)
+    state := p.oldState
+	_, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), uintptr(syscall.TCSETS), uintptr(unsafe.Pointer(&state.termios)), 0, 0, 0)
 	return err
 }

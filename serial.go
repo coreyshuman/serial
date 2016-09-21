@@ -19,8 +19,7 @@ import (
 
 type SerialInterface struct {
 	id int
-	s *serial.Port
-	state State
+	s *Port
 }
 
 
@@ -28,7 +27,7 @@ var idSeed int = -1
 
 var ifaceList *list.List = nil
 
-func findIface(id int) *serial.Port {
+func findIface(id int) *Port {
 	for e := ifaceList.Front(); e != nil; e = e.Next() {
 		if e.Value.(SerialInterface).id == id {
 			return e.Value.(SerialInterface).s

@@ -1,10 +1,12 @@
 // +build linux,!cgo
 
-// CTS NOTE: This file originally part of the Goserial library at
-// github.com/tarm/serial
+/*
+CTS NOTE: This file originally part of the Goserial library at
+github.com/tarm/serial
 
-// CTS 9/21/16 now save old termios settings and restore on close.
-// Also add support for raw mode
+CTS 9/21/16 now save old termios settings and restore on close.
+Also add support for raw mode
+*/
 
 package serial
 

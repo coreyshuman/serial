@@ -10,7 +10,7 @@ func TestNonblockingRead(t *testing.T) {
     defer timeTrack(time.Now(), "TestNonblockingRead", t)
     Init()
     t.Log("Connecting...")
-    sid, cerr := Connect("COM1", 115200, 500)
+    sid, cerr := Connect("COM1", 115200, 1)
     if cerr != nil || sid == -1 {
         t.Error("Failed to Connect.")
     }

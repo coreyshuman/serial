@@ -115,7 +115,7 @@ func openPort(name string, baud int, databits byte, parity Parity, stopbits Stop
 	}
     
     // save current termios settings
-    var oldState State
+    var oldState *State
     if oldState, err = getState(fd); err != nil {
         return nil, err
     }
@@ -173,9 +173,7 @@ func (p *Port) Flush() error {
 }
 
 func (p *Port) Close() (err error) {
-    if p.oldState != nil {
-        p.restore()
-    }
+    p.restore()
 	return p.f.Close()
 }
 
@@ -184,7 +182,7 @@ func (p *Port) RawMode() (error) {
 	fd := p.f.Fd()
 	var oldState State
 	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), uintptr(syscall.TCGETS), uintptr(unsafe.Pointer(&oldState.termios)), 0, 0, 0); err != 0 {
-		return nil, err
+		return err
 	}
 
 	newState := oldState.termios
@@ -204,9 +202,9 @@ func (p *Port) RawMode() (error) {
 
 // GetState returns the current state of a terminal which may be useful to
 // restore the terminal after a signal.
-func getState(fd int) (*State, error) {
+func getState(fd uintptr) (*State, error) {
 	var oldState State
-	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), uintptr(syscall.TCGETS), uintptr(unsafe.Pointer(&oldState.termios)), 0, 0, 0); err != 0 {
+	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, fd, uintptr(syscall.TCGETS), uintptr(unsafe.Pointer(&oldState.termios)), 0, 0, 0); err != 0 {
 		return nil, err
 	}
 

@@ -8,7 +8,6 @@ package serial
  */
  
 import (
-	"github.com/tarm/serial"
 	"time"
 	"bufio"
 	"bytes"
@@ -16,10 +15,14 @@ import (
 	"container/list"
 )
 
+
+
 type SerialInterface struct {
 	id int
 	s *serial.Port
+	state State
 }
+
 
 var idSeed int = -1
 
@@ -99,7 +102,7 @@ func SendBytes(id int, data []byte) (n int, err error) {
 	}
 }
 
-func Read(id int) (string, error) {
+func ReadLine(id int) (string, error) {
 	iface := findIface(id)
 	if iface != nil {
 		reader := bufio.NewReader(iface)
@@ -120,9 +123,7 @@ func Read(id int) (string, error) {
 func ReadBytes(id int, d []byte) (n int, err error) {
 	iface := findIface(id)
 	if iface != nil {
-		reader := bufio.NewReader(iface)
-		
-		n, err = reader.Read(d)
+		n, err = iface.Read(d)
 			
 			if err != nil {
 				return 0, err
@@ -133,3 +134,4 @@ func ReadBytes(id int, d []byte) (n int, err error) {
 		return 0, errors.New("Device id not found")
 	}
 }
+

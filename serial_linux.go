@@ -1,5 +1,3 @@
-// +build linux,!cgo
-
 /*
 CTS NOTE: This file originally part of the Goserial library at
 github.com/tarm/serial
@@ -148,7 +146,7 @@ type Port struct {
 	// We intentionly do not use an "embedded" struct so that we
 	// don't export File
 	f *os.File
-    oldState State
+    oldState *State
 }
 
 func (p *Port) Read(b []byte) (n int, err error) {

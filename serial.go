@@ -13,6 +13,7 @@ import (
 	"bytes"
 	"errors"
 	"container/list"
+	"fmt"
 )
 
 
@@ -54,15 +55,19 @@ func Init() {
 	}
 }
 
-func Connect(dev string, baud int, timeout int) (id int, err error) {
+func Connect(dev string, baud int, timeout int, rawMode bool) (id int, err error) {
 	var serialIface SerialInterface
-	c := &serial.Config{Name: dev, Baud: baud, ReadTimeout: time.Millisecond * time.Duration(timeout)}
+	c := &Config{Name: dev, Baud: baud, ReadTimeout: time.Millisecond * time.Duration(timeout)}
 	serialIface.id = idSeed
 	idSeed = idSeed + 1
-	serialIface.s, err = serial.OpenPort(c)
+	serialIface.s, err = OpenPort(c)
 	if err != nil {
 		id = -1
 		return
+	}
+	if rawMode {
+	   err = serialIface.s.RawMode()
+	   fmt.Println("Raw Mode")
 	}
 	ifaceList.PushBack(serialIface)
 	id = serialIface.id
